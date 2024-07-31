@@ -1,6 +1,6 @@
 # Data Stack Project
 
-Este projeto configura um stack de dados utilizando Docker e Docker Compose, incluindo as seguintes tecnologias:
+Este projeto configura um stack open source de dados utilizando Docker e Docker Compose, incluindo as seguintes tecnologias:
 
 - Apache Airflow
 - Airbyte
