@@ -20,5 +20,5 @@ Este projeto configura um stack de dados utilizando Docker e Docker Compose, inc
 1. Clone este repositório:
 
 ```bash
-git clone https://github.com/seu-usuario/seu-repositorio.git
-cd seu-repositorio
+git clone https://github.com/datasenseco/os-modern-data-stack.git
+cd os-modern-data-stack
