@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  airflow:
+    image: apache/airflow:latest
+    container_name: airflow
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    ports:
+      - "8080:8081"
+    depends_on:
+      - postgres
+    volumes:
+      - ./docker/airflow/dags:/opt/airflow/dags
+      - ./docker/airflow/logs:/opt/airflow/logs
+      - ./docker/airflow/plugins:/opt/airflow/plugins
+
+  airbyte:
+    image: airbyte/airbyte:latest
+    container_name: airbyte
+    ports:
+      - "8000:8000"
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    ports:
+      - "9000:9000"
+    command: server /data
+
+  dbt:
+    image: fishtownanalytics/dbt:latest
+    container_name: dbt
+    volumes:
+      - ./docker/dbt:/usr/app
+    command: tail -f /dev/null
+
+  datahub-gms:
+    image: linkedin/datahub-gms:latest
+    container_name: datahub-gms
+    environment:
+      DATAHUB_GMS_HOST: gms
+    ports:
+      - "8082:8082"
+
+  datahub-frontend:
+    image: linkedin/datahub-frontend:latest
+    container_name: datahub-frontend
+    environment:
+      DATAHUB_GMS_HOST: gms
+    ports:
+      - "9002:9002"
+    depends_on:
+      - datahub-gms
+
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase
+    ports:
+      - "3000:3000"
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: metabase
+      MB_DB_PORT: 5432
+      MB_DB_USER: airflow
+      MB_DB_PASS: airflow
+      MB_DB_HOST: postgres
+
+volumes:
+  postgres_data:
